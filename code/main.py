@@ -3,8 +3,8 @@ from rule import *
 
 if __name__ == "__main__":
     examples = read_examples("../data/car.data")
-    examples, W = get_rand_examples(examples, 500)
-    examples, T = get_rand_examples(examples, 500)
+    examples, W = get_rand_examples(examples, 700)
+    examples, T = get_rand_examples(examples, 700)
 
     rules = []
     R = deepcopy(T)
@@ -16,7 +16,7 @@ if __name__ == "__main__":
         R = remove_from_set(k, R)
         W = remove_from_set(k, W)
 
-#    for i, r in enumerate(rules):
-#        print(f"rule {i}: {r}")
+    for i, r in enumerate(rules):
+        print(f"rule {i}: {r}")
 
 
