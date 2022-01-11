@@ -211,13 +211,46 @@ def give_best_x_complexes(pos_seed, G, W, cnt):
     return bests
 
 
+def get_distance_between_examples(e1, e2):
+    score = 0
+    if e1.complex.safety != e2.complex.safety:
+        score += 1
+    if e1.complex.buying != e2.complex.buying:
+        score += 1
+    if e1.complex.maint != e2.complex.maint:
+        score += 1
+    if e1.complex.lug_boot != e2.complex.lug_boot:
+        score += 1
+    if e1.complex.persons != e2.complex.persons:
+        score += 1
+    if e1.complex.doors != e2.complex.doors:
+        score += 1
+    return score
+
+
+def get_better_neg_seed(R_0, pos_seed):
+    neg_seed_index = 0
+    neg_seed_distance = get_distance_between_examples(R_0[neg_seed_index], pos_seed)
+    for idx, example in enumerate(R_0):
+        if get_distance_between_examples(example, pos_seed) > neg_seed_distance:
+            neg_seed_index = idx
+            neg_seed_distance = get_distance_between_examples(example, pos_seed)
+    return neg_seed_index
+
+def get_class_with_rules_set(example, rules):
+    for rule in rules:
+        if is_more_general(rule.complex, example.complex):
+            return rule.value
+
+
 def aq_specialization(R, W):
     G = [get_full_complex()]
     pos_seed = R[randint(0, len(R) - 1)]
     R_1, R_0 = divide_set_by_class(pos_seed.value, R)
     while len(examples_covered_by_complexes(G, R_0)) != 0:
-        neg_seed = R_0.pop(randint(0, len(R_0) - 1))
+        # neg_seed = R_0.pop(randint(0, len(R_0) - 1))
+        neg_seed = R_0.pop(get_better_neg_seed(R_0, pos_seed))
         G = do_complexes_specialization(G, pos_seed, neg_seed)
         G = remove_more_general_complexes(G)
-        G = give_best_x_complexes(pos_seed, G, W, 10)
+        G = give_best_x_complexes(pos_seed, G, W, 5)
     return give_best_x_complexes(pos_seed, G, W, 1)[0]
