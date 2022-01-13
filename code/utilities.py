@@ -1,7 +1,10 @@
+import os
+import pickle
+import re
+from pathlib import Path
 from collections import Counter
 from copy import *
 from random import *
-
 from example import *
 
 
@@ -109,10 +112,8 @@ def get_prevail_class(com, set):
             classes.append(example.value)
     dict_count = Counter(classes)
     x = max(dict_count, key=dict_count.get)
-    print(f"{com}\n"
-          f"DICT: {dict_count}\n\n")
+#    print(f"{com}\n DICT: {dict_count}, R size: {len(set)}\n\n")
     return x
-
 
 def remove_from_set(com, set):
     new_set = []
@@ -200,7 +201,7 @@ def give_best_x_complexes(pos_seed, G, W, cnt):
                 tp += 1
             elif len(examples_covered_by_complexes([com], [ex])) == 0:
                 fn += 1
-        scores[str(idx)] = tp + tn - fp - fn
+        scores[str(idx)] = tp
 
     i = 0
     while i < cnt and len(scores) > 0:
@@ -243,14 +244,62 @@ def get_class_with_rules_set(example, rules):
             return rule.value
 
 
+def save_rules(rules):
+    rules_dir = "rules/"
+    Path(rules_dir).mkdir(parents=True, exist_ok=True)
+    existing_rules_sets = os.listdir(rules_dir)
+    if len(existing_rules_sets) == 0:
+        rules_set_name = "rules.1.pkl"
+    else:
+        existing_rules_sets = sorted(existing_rules_sets, key=lambda x: (len(x), x))
+        lastindex = re.search('\d+', existing_rules_sets[-1]).group(0)
+        rules_set_name = "rules." + str(int(lastindex) + 1) + ".pkl"
+    print(rules_dir + rules_set_name)
+
+    with open(rules_dir + rules_set_name, 'wb') as outp:
+        pickle.dump(rules, outp, pickle.HIGHEST_PROTOCOL)
+
+
+def read_rules(path):
+    with open(path, 'rb') as inp:
+        rules = pickle.load(inp)
+    return rules
+
+def test_rules(rules, test):
+    valid_pred = 0
+    not_valid_pred = 0
+    for example in test:
+        if example.value == get_class_with_rules_set(example, rules):
+            valid_pred += 1
+        else:
+            not_valid_pred += 1
+
+    print(f"rules set size: {len(rules)}")
+    print(f"test set size: {len(test)}")
+    print(f"valid_pred: {valid_pred}")
+    print(f"not_valid_pred: {not_valid_pred}")
+
+def print_rules(rules):
+    for i, r in enumerate(rules):
+        print(f"rule {i}: {r}")
+
+
 def aq_specialization(R, W):
-    G = [get_full_complex()]
-    pos_seed = R[randint(0, len(R) - 1)]
-    R_1, R_0 = divide_set_by_class(pos_seed.value, R)
-    while len(examples_covered_by_complexes(G, R_0)) != 0:
-        # neg_seed = R_0.pop(randint(0, len(R_0) - 1))
-        neg_seed = R_0.pop(get_better_neg_seed(R_0, pos_seed))
-        G = do_complexes_specialization(G, pos_seed, neg_seed)
-        G = remove_more_general_complexes(G)
-        G = give_best_x_complexes(pos_seed, G, W, 5)
-    return give_best_x_complexes(pos_seed, G, W, 1)[0]
+    while True:
+        G = [get_full_complex()]
+        pos_seed = R[randint(0, len(R) - 1)]
+        R_1, R_0 = divide_set_by_class(pos_seed.value, R)
+        while len(examples_covered_by_complexes(G, R_0)) != 0:
+            neg_seed = R_0.pop(randint(0, len(R_0) - 1))
+            #neg_seed = R_0.pop(get_better_neg_seed(R_0, pos_seed))
+            G = do_complexes_specialization(G, pos_seed, neg_seed)
+            G = remove_more_general_complexes(G)
+            G = give_best_x_complexes(pos_seed, G, W, 5)
+
+
+        best = give_best_x_complexes(pos_seed, G, W, 1)[0]
+        matches = len(examples_covered_by_complexes([best], R))
+        if matches > 0.02 * len(R):
+            return best
+
+
