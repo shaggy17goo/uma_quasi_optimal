@@ -20,7 +20,7 @@ def read_examples(path):
 
 
 def save_rules(rules):
-    rules_dir = "../rules/"
+    rules_dir = "../v3/rules/"
     Path(rules_dir).mkdir(parents=True, exist_ok=True)
     existing_rules_sets = os.listdir(rules_dir)
     if len(existing_rules_sets) == 0:

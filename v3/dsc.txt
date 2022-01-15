@@ -1,0 +1,11 @@
+tren: random 500
+wal: random 500
+test: random 728
+all disjoint
+
+
+0.00 * current size of R set
+best_complexes: 10
+comptex_quality: tp + tn - fp - fn
+random_pos_seed
+better_neg_seed

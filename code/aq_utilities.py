@@ -25,15 +25,15 @@ def aq_specialization(R, W):
         pos_seed = R[randint(0, len(R) - 1)]
         R_1, R_0 = divide_set_by_class(pos_seed.value, R)
         while len(examples_covered_by_complexes(G, R_0)) != 0:
-            neg_seed = R_0.pop(randint(0, len(R_0) - 1))
-            # neg_seed = R_0.pop(get_better_neg_seed(R_0, pos_seed))
+            # neg_seed = R_0.pop(randint(0, len(R_0) - 1))
+            neg_seed = R_0.pop(get_better_neg_seed(R_0, pos_seed))
             G = do_complexes_specialization(G, pos_seed, neg_seed)
             G = remove_more_general_complexes(G)
-            G = give_best_x_complexes(pos_seed, G, W, 5)
+            G = give_best_x_complexes(pos_seed, G, W, 10)
 
         best = give_best_x_complexes(pos_seed, G, W, 1)[0]
         matches = len(examples_covered_by_complexes([best], R))
-        if matches > 0.02 * len(R):
+        if matches > 0.00 * len(R):
             return best
 
 
@@ -89,15 +89,15 @@ def get_dominate_class(com, set):
         if is_more_general_complex(com, example.complex):
             classes.append(example.value)
     dict_count = Counter(classes)
-    x = max(dict_count, key=dict_count.get)
+    dominate_class = max(dict_count, key=dict_count.get)
 
-
-    #DEBUG BLOCK
+    # DEBUG BLOCK
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
     print(f"{com}\n DICT: {dict_count}, R size: {len(set)}\nCurrent Time = {current_time}\n")
+    # DEBUG BLOCK
 
-    return x
+    return dominate_class
 
 
 def examples_covered_by_complexes(complexes, set):
@@ -156,7 +156,7 @@ def give_best_x_complexes(pos_seed, G, W, cnt):
                 tp += 1
             elif len(examples_covered_by_complexes([com], [ex])) == 0:
                 fn += 1
-        scores[str(idx)] = tp
+        scores[str(idx)] = tp + tn - fp - fn
 
     i = 0
     while i < cnt and len(scores) > 0:
