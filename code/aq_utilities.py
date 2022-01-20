@@ -1,4 +1,6 @@
 from datetime import datetime
+
+from main import *
 from sets_utilities import *
 from example import *
 from rule import *
@@ -25,26 +27,30 @@ def aq_specialization(R, W):
         pos_seed = R[randint(0, len(R) - 1)]
         R_1, R_0 = divide_set_by_class(pos_seed.value, R)
         while len(examples_covered_by_complexes(G, R_0)) != 0:
-            # neg_seed = R_0.pop(randint(0, len(R_0) - 1))
+            #neg_seed = R_0.pop(randint(0, len(R_0) - 1))
             neg_seed = R_0.pop(get_better_neg_seed(R_0, pos_seed))
             G = do_complexes_specialization(G, pos_seed, neg_seed)
             G = remove_more_general_complexes(G)
-            G = give_best_x_complexes(pos_seed, G, W, 10)
+            G = give_best_x_complexes(pos_seed, G, W, best_complexes_param)
 
         best = give_best_x_complexes(pos_seed, G, W, 1)[0]
+
+        # TESTING
         matches = len(examples_covered_by_complexes([best], R))
         if matches > 0.00 * len(R):
             return best
-
+        # TESTING
 
 def do_complexes_specialization(G, pos_seed, neg_seed):
     new_G = []
+
     for c in G:
-        spec_complexes = complex_specialization(c, pos_seed.complex, neg_seed.complex)
-        for spec_c in spec_complexes:
-            new_G.append(spec_c)
-        else:
+        if is_more_general_complex(c, neg_seed.complex) == 0:
             new_G.append(c)
+        else:
+            spec_complexes = complex_specialization(c, pos_seed.complex, neg_seed.complex)
+            for spec_c in spec_complexes:
+                new_G.append(spec_c)
     return new_G
 
 
@@ -92,9 +98,9 @@ def get_dominate_class(com, set):
     dominate_class = max(dict_count, key=dict_count.get)
 
     # DEBUG BLOCK
-    now = datetime.now()
-    current_time = now.strftime("%H:%M:%S")
-    print(f"{com}\n DICT: {dict_count}, R size: {len(set)}\nCurrent Time = {current_time}\n")
+    #now = datetime.now()
+    #current_time = now.strftime("%H:%M:%S")
+    #print(f"{com}\n DICT: {dict_count}, R size: {len(set)}\nCurrent Time = {current_time}\n")
     # DEBUG BLOCK
 
     return dominate_class
