@@ -27,19 +27,24 @@ def aq_specialization(R, W):
         pos_seed = R[randint(0, len(R) - 1)]
         R_1, R_0 = divide_set_by_class(pos_seed.value, R)
         while len(examples_covered_by_complexes(G, R_0)) != 0:
-            #neg_seed = R_0.pop(randint(0, len(R_0) - 1))
-            neg_seed = R_0.pop(get_better_neg_seed(R_0, pos_seed))
+
+            if custom_neg_seed:
+                neg_seed = R_0.pop(get_better_neg_seed(R_0, pos_seed))
+            else:
+                neg_seed = R_0.pop(randint(0, len(R_0) - 1))
+
             G = do_complexes_specialization(G, pos_seed, neg_seed)
-            G = remove_more_general_complexes(G)
+            G = remove_more_specific_complexes(G)
             G = give_best_x_complexes(pos_seed, G, W, best_complexes_param)
 
         best = give_best_x_complexes(pos_seed, G, W, 1)[0]
 
-        # TESTING
+        # Own additional function, minimizes rule set size, increases computational cost
         matches = len(examples_covered_by_complexes([best], R))
-        if matches > 0.00 * len(R):
+        if matches > minimize_rules_cnt_param * len(R):
             return best
-        # TESTING
+        # Own additional function, minimizes rule set size, increases computational cost
+
 
 def do_complexes_specialization(G, pos_seed, neg_seed):
     new_G = []
@@ -98,9 +103,10 @@ def get_dominate_class(com, set):
     dominate_class = max(dict_count, key=dict_count.get)
 
     # DEBUG BLOCK
-    #now = datetime.now()
-    #current_time = now.strftime("%H:%M:%S")
-    #print(f"{com}\n DICT: {dict_count}, R size: {len(set)}\nCurrent Time = {current_time}\n")
+    if debug_on:
+        now = datetime.now()
+        current_time = now.strftime("%H:%M:%S")
+        print(f"{com}\n DICT: {dict_count}, R size: {len(set)}\nCurrent Time = {current_time}\n")
     # DEBUG BLOCK
 
     return dominate_class
@@ -116,13 +122,13 @@ def examples_covered_by_complexes(complexes, set):
     return covered
 
 
-def remove_more_general_complexes(complexes):
-    # remove more general
+def remove_more_specific_complexes(complexes):
+    # remove more specific
     i = 0
     while i < len(complexes):
         j = 0
         while j < len(complexes):
-            if not complexes[i].__eq__(complexes[j]) and is_more_general_complex(complexes[i], complexes[j]):
+            if not complexes[i].__eq__(complexes[j]) and is_more_specific_complex(complexes[i], complexes[j]):
                 complexes.pop(i)
                 i -= 1
                 break
