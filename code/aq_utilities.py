@@ -27,12 +27,10 @@ def aq_specialization(R, W):
         pos_seed = R[randint(0, len(R) - 1)]
         R_1, R_0 = divide_set_by_class(pos_seed.value, R)
         while len(examples_covered_by_complexes(G, R_0)) != 0:
-
             if custom_neg_seed:
                 neg_seed = R_0.pop(get_better_neg_seed(R_0, pos_seed))
             else:
                 neg_seed = R_0.pop(randint(0, len(R_0) - 1))
-
             G = do_complexes_specialization(G, pos_seed, neg_seed)
             G = remove_more_specific_complexes(G)
             G = give_best_x_complexes(pos_seed, G, W, best_complexes_param)
