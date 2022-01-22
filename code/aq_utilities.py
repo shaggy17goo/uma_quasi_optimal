@@ -35,13 +35,7 @@ def aq_specialization(R, W):
             G = give_best_x_complexes(pos_seed, G, W, best_complexes_param)
 
         best = give_best_x_complexes(pos_seed, G, W, 1)[0]
-
-        # Own additional function, minimizes rule set size, increases computational cost
-        matches = len(examples_covered_by_complexes([best], R))
-        if matches > minimize_rules_cnt_param * len(R):
-            return best
-        # Own additional function, minimizes rule set size, increases computational cost
-
+        return best
 
 def do_complexes_specialization(G, pos_seed, neg_seed):
     new_G = []
