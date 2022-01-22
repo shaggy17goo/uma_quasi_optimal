@@ -14,7 +14,14 @@ def test_rules(rules, test):
     return valid_pred / len(test)
 
 
-def test_rules_sets_with_voting(rules_sets, test):
+def test_rules_sets_with_voting(path_rules_sets, path_test):
+    dir_list = os.listdir(path_rules_sets)
+    test = read_examples(path_test)
+    rules_sets = []
+    for i in range(len(dir_list)):
+        rules_sets.append(read_rules(f"{path_rules_sets}/rules.{i + 1}.pkl"))
+
+
     scores = [{} for _ in range(len(test))]
     for idx, example in enumerate(test):
         for rules in rules_sets:
@@ -28,6 +35,7 @@ def test_rules_sets_with_voting(rules_sets, test):
         if example.value == max(scores[idx], key=scores[idx].get):
             final_score += 1
 
+    print(f"Accuracy with voting by {len(dir_list)} rules sets: {final_score/len(test)}")
     return final_score / len(test)
 
 
@@ -83,9 +91,9 @@ def test_one_rule_generate():
 
     rules = generate_rules(T, W)
     score = test_rules(rules, test)
-    print(f"Summary:\n")
-    print(f"rules_cnt: {len(rules)}\n")
-    print(f"accuracy: {score}\n\n")
+    print(f"Summary:")
+    print(f"rules_cnt: {len(rules)}")
+    print(f"accuracy: {score}\n")
 
 
 def test_diff_best_complexes_param():
