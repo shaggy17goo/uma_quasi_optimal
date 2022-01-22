@@ -49,12 +49,11 @@ def test_generate_and_test_x_rules_sets_voting(x, test_name):
     minimize_rules_cnt_param = 0
     train_and_wal_size = 700
 
-    divide_file_randomly_on_two_parts("../data/car.data", 2 * train_and_wal_size)
-
     if not os.path.exists(f"../data/{test_name}/"):
         os.makedirs(f"../data/{test_name}/")
-    shutil.copyfile("../data/car.dataextracted", f"../data/{test_name}/car.data.tren_wal")
-    shutil.copyfile("../data/car.datarest", f"../data/{test_name}/car.data.test")
+        divide_file_randomly_on_two_parts("../data/car.data", 2 * train_and_wal_size)
+        shutil.copyfile("../data/car.dataextracted", f"../data/{test_name}/car.data.tren_wal")
+        shutil.copyfile("../data/car.datarest", f"../data/{test_name}/car.data.test")
     for i in range(x):
         examples = read_examples(f"../data/{test_name}/car.data.tren_wal")
         examples, T = get_rand_examples(examples, train_and_wal_size)
