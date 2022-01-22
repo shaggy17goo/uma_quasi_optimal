@@ -19,8 +19,8 @@ def read_examples(path):
     return examples
 
 
-def save_rules(rules):
-    rules_dir = "../v3/rules/"
+def save_rules(rules, directory):
+    rules_dir = directory
     Path(rules_dir).mkdir(parents=True, exist_ok=True)
     existing_rules_sets = os.listdir(rules_dir)
     if len(existing_rules_sets) == 0:
